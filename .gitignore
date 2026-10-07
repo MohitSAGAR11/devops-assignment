@@ -1,0 +1,6 @@
+# Python virtual environments
+venv/
+.venv/
+**/venv/
+**/.venv/
+argocd-linux-amd64argocd-linux-amd64

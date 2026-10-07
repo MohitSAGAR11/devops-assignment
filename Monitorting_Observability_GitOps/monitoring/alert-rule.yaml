@@ -1,0 +1,31 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: monitoring-demo-alerts
+  namespace: monitoring-demo
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: monitoring-demo.rules
+      rules:
+        - alert: MonitoringDemoHighCpu
+          expr: |
+            sum by (pod) (
+              rate(container_cpu_usage_seconds_total{
+                namespace="monitoring-demo",
+                container="nginx"
+              }[5m])
+            ) / sum by (pod) (
+              kube_pod_container_resource_limits{
+                namespace="monitoring-demo",
+                container="nginx",
+                resource="cpu"
+              }
+            ) > 0.80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Monitoring demo Pod CPU is above 80% of its limit"
+            description: "Pod {{ $labels.pod }} has used more than 80% of its CPU limit for five minutes."
